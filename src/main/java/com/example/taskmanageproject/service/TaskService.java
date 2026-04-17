@@ -1,5 +1,6 @@
 package com.example.taskmanageproject.service;
-
+import com.example.taskmanageproject.dto.TaskRequest;
+import com.example.taskmanageproject.dto.TaskResponse;
 import com.example.taskmanageproject.entity.Task;
 import com.example.taskmanageproject.repository.TaskRepository;
 import org.springframework.stereotype.Service;
@@ -19,8 +20,15 @@ public class TaskService {
         return taskRepository.save(task);
     }
 
-    public List<Task> getAllTasks() {
-        return taskRepository.findAll();
+    public List<TaskResponse> getAllTasks() {
+        return taskRepository.findAll()
+                .stream()
+                .map(task -> new TaskResponse(
+                        task.getId(),
+                        task.getTitle(),
+                        task.getDescription()
+                ))
+                .toList();
     }
 
     public void deleteTask(Long id) {
@@ -34,5 +42,21 @@ public class TaskService {
         task.setDescription(updatedTask.getDescription());
 
         return taskRepository.save(task);
+    }
+
+
+    public TaskResponse createTask(TaskRequest request) {
+
+        Task task = new Task();
+        task.setTitle(request.getTitle());
+        task.setDescription(request.getDescription());
+
+        Task saved = taskRepository.save(task);
+
+        return new TaskResponse(
+                saved.getId(),
+                saved.getTitle(),
+                saved.getDescription()
+        );
     }
 }
